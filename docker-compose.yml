@@ -1,0 +1,54 @@
+services:
+
+  # ── core ─────────────────────────────────────────────────────────────────
+  redis-stack:
+    image: redis/redis-stack:latest
+    profiles: [core]
+    ports:
+      - "6379:6379"
+      - "8001:8001"   # RedisInsight
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  lcore-api:
+    build:
+      context: .
+      dockerfile: lcore/Dockerfile
+    profiles: [core]
+    depends_on:
+      redis-stack:
+        condition: service_healthy
+    env_file: infra/.env
+    ports:
+      - "8100:8100"
+
+  # ── gateway ───────────────────────────────────────────────────────────────
+  lgateway:
+    build:
+      context: .
+      dockerfile: lgateway/Dockerfile
+    profiles: [gateway]
+    depends_on:
+      - lcore-api
+    env_file: infra/.env
+    ports:
+      - "8443:8443"   # mTLS
+
+  # ── eval ──────────────────────────────────────────────────────────────────
+  eval-runner:
+    build:
+      context: .
+      dockerfile: eval/Dockerfile
+    profiles: [eval]
+    depends_on:
+      - lcore-api
+    env_file: infra/.env
+    volumes:
+      - ./eval:/eval
+
+volumes:
+  redis-data:
