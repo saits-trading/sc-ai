@@ -35,10 +35,10 @@ def _embed(text: str) -> list[float]:
 def retrieve(envelope: QueryEnvelope) -> RetrievalResult:
     """Embed the query and run KNN search against the tenant's vector index.
 
-    Returns ranked chunks and scores; tenant scope enforced by org_id prefix.
+    Returns ranked chunks and scores; tenant scope enforced by tenant_id prefix.
     """
     vec     = _embed(envelope.query)
-    hits    = search(envelope.org_id, vec, top_k=envelope.top_k)
+    hits    = search(envelope.tenant_id, vec, top_k=envelope.top_k)
     return RetrievalResult(
         chunks    = [h[2] for h in hits],
         scores    = [h[1] for h in hits],

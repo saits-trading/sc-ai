@@ -7,7 +7,7 @@ from typing import Any
 @dataclass
 class QueryEnvelope:
     query: str
-    org_id: str       # Clerk org — namespaces Redis vector index
+    tenant_id: str    # canonical saitsCloud tenant — namespaces Redis vector index
     top_k: int = 5
     metadata: dict[str, Any] | None = None
 

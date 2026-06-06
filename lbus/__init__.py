@@ -38,7 +38,7 @@ def publish_query(envelope: QueryEnvelope) -> str:
 
     Returns the Redis stream message id.
     """
-    key = _stream_key(envelope.org_id, "query")
+    key = _stream_key(envelope.tenant_id, "query")
     return _redis().xadd(
         key,
         {"query": envelope.query, "top_k": str(envelope.top_k)},
